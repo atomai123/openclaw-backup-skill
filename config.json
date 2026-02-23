@@ -1,0 +1,12 @@
+{
+  "backupDirectory": "/root/repos/openclaw_backup",
+  "retentionDays": 30,
+  "gitRemote": "origin",
+  "enableAutoPush": true,
+  "compressBackups": false,
+  "notification": {
+    "feishu": true,
+    "telegram": true,
+    "wechat": true
+  }
+}

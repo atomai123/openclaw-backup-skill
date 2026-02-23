@@ -1,0 +1,30 @@
+# OpenClaw Backup Skill - Git Ignore
+
+# 备份目录（不提交实际备份文件）
+backups/
+
+# 日志文件
+*.log
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# 报告文件
+reports/
+*.report
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node modules（如果技能依赖）
+node_modules/
