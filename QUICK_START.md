@@ -2,7 +2,21 @@
 
 ## 🚀 三步完成设置
 
-### 步骤1：设置备份私有仓库
+### 步骤1：设置环境变量（可选但推荐）
+
+如果你OpenClaw安装在非默认位置，设置环境变量：
+
+```bash
+# 添加到 ~/.bashrc 或 ~/.bash_profile
+export OPENCLAW_HOME=/path/to/openclaw
+
+# 重新加载配置
+source ~/.bashrc
+```
+
+**默认值**：`OPENCLAW_HOME=/root/.openclaw`
+
+### 步骤2：设置备份私有仓库
 
 ```bash
 /root/.openclaw/workspace/skills/openclaw-backup/scripts/setup-private-repo.sh
@@ -14,7 +28,7 @@
 - ✅ 指导创建GitHub私有仓库
 - ✅ 连接远程仓库并推送
 
-### 步骤2：手动测试备份
+### 步骤3：手动测试备份
 
 ```bash
 /root/.openclaw/workspace/skills/openclaw-backup/scripts/backup-with-report.sh
@@ -22,14 +36,14 @@
 
 验证备份是否正常工作，检查GitHub私有仓库是否有新的提交。
 
-### 步骤3：设置自动备份（cron）
+### 步骤4：设置自动备份（cron）
 
 ```bash
 # 编辑crontab
 crontab -e
 
 # 添加以下行（每天23:55执行备份）
-55 23 * * * /root/.openclaw/workspace/skills/openclaw-backup/scripts/backup-with-report.sh >> /root/repos/openclaw_backup/backup.log 2>&1
+55 23 * * * OPENCLAW_HOME=$OPENCLAW_HOME /root/.openclaw/workspace/skills/openclaw-backup/scripts/backup-with-report.sh >> $OPENCLAW_HOME/backups/backup.log 2>&1
 ```
 
 ---
@@ -51,13 +65,16 @@ crontab -e
 系统重装后：
 
 ```bash
-# 1. 克隆备份仓库
+# 1. 设置环境变量（如果需要）
+export OPENCLAW_HOME=/path/to/openclaw
+
+# 2. 克隆备份仓库
 git clone https://github.com/atomai123/openclaw_backup.git
 
-# 2. 解压最新备份
-cp -r openclaw_backup/backups/YYYYMMDD_HHMMSS /root/.openclaw/
+# 3. 解压最新备份
+cp -r openclaw_backup/backups/YYYYMMDD_HHMMSS $OPENCLAW_HOME/
 
-# 3. 重启OpenClaw
+# 4. 重启OpenClaw
 openclaw restart
 ```
 
@@ -67,7 +84,7 @@ openclaw restart
 
 ```bash
 # 查看备份列表
-ls -lt /root/repos/openclaw_backup/backups/ | head -10
+ls -lt $OPENCLAW_HOME/backups/backups/ | head -10
 
 # 清理（会提示确认）
 /root/.openclaw/workspace/skills/openclaw-backup/scripts/cleanup-confirm.sh 30
@@ -83,10 +100,11 @@ ls -lt /root/repos/openclaw_backup/backups/ | head -10
 
 ## ⚠️ 重要提示
 
-1. **GitHub访问令牌** - 如果推送失败，需要配置GitHub个人访问令牌
-2. **网络连接** - 确保服务器可以访问GitHub
-3. **磁盘空间** - 定期清理旧备份，避免磁盘占满
-4. **测试恢复** - 定期测试恢复流程，确保备份可用
+1. **环境变量** - 如果OpenClaw安装在非默认位置，需要设置 `OPENCLAW_HOME` 环境变量
+2. **GitHub访问令牌** - 如果推送失败，需要配置GitHub个人访问令牌
+3. **网络连接** - 确保服务器可以访问GitHub
+4. **磁盘空间** - 定期清理旧备份，避免磁盘占满
+5. **测试恢复** - 定期测试恢复流程，确保备份可用
 
 ---
 
@@ -99,4 +117,4 @@ ls -lt /root/repos/openclaw_backup/backups/ | head -10
 
 ---
 
-*OpenClaw Backup System v1.2.0*
+*OpenClaw Backup System v1.4.0*

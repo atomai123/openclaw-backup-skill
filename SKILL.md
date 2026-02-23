@@ -23,7 +23,21 @@
 
 在开始使用之前，需要完成以下设置：
 
-#### 1. 设置GitHub私有仓库（用于存储备份）
+#### 1. 设置环境变量（可选但推荐）
+
+如果你的OpenClaw安装在非默认位置，设置环境变量：
+
+```bash
+# 添加到 ~/.bashrc 或 ~/.bash_profile
+export OPENCLAW_HOME=/path/to/openclaw
+
+# 重新加载配置
+source ~/.bashrc
+```
+
+**默认值**：`OPENCLAW_HOME=/root/.openclaw`
+
+#### 2. 设置GitHub私有仓库（用于存储备份）
 
 ```bash
 # 运行设置脚本
@@ -37,7 +51,7 @@
 - ✅ 连接远程仓库
 - ✅ 推送初始文件
 
-#### 2. 配置Git凭证（如需要）
+#### 3. 配置Git凭证（如需要）
 
 ```bash
 # 配置Git凭证

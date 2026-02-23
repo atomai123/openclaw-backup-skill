@@ -5,7 +5,7 @@
 set -e -o pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" && pwd )"
-LOG_FILE="/root/repos/openclaw_backup/backup.log"
+LOG_FILE="${OPENCLAW_HOME:-/root/.openclaw}/backup.log"
 
 # 颜色定义
 RED='\033[0;31m'
@@ -14,7 +14,8 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-BACKUP_DIR="/root/repos/openclaw_backup/backups"
+OPENCLAW_HOME="${OPENCLAW_HOME:-/root/.openclaw}"
+BACKUP_DIR="${OPENCLAW_HOME}/backups"
 DEFAULT_RETENTION_DAYS=30
 
 log_info() {
@@ -41,15 +42,15 @@ log_error() {
 RETENTION_DAYS=${1:-$DEFAULT_RETENTION_DAYS}
 
 # 检查备份目录是否存在
-if [ ! -d "$BACKUP_DIR" ]; then
-    log_error "备份目录不存在: $BACKUP_DIR"
+if [ ! -d "$BACKUP_DIR/backups" ]; then
+    log_error "备份目录不存在: $BACKUP_DIR/backups"
     exit 1
 fi
 
 log_info "查找超过 $RETENTION_DAYS 天的备份..."
 
 # 查找要删除的备份
-OLD_BACKUPS=$(find "$BACKUP_DIR" -maxdepth 1 -mindepth 1 -type d -mtime +$RETENTION_DAYS)
+OLD_BACKUPS=$(find "$BACKUP_DIR/backups" -maxdepth 1 -mindepth 1 -type d -mtime +$RETENTION_DAYS)
 
 if [ -z "$OLD_BACKUPS" ]; then
     log_info "没有超过 $RETENTION_DAYS 天的旧备份"
@@ -73,7 +74,7 @@ for dir in $OLD_BACKUPS; do
     echo "📁 $dir_name"
     echo "   大小: $dir_size"
     echo ""
-    
+
     # 计算总大小
     size_bytes=$(du -sb "$dir" | cut -f1)
     TOTAL_SIZE=$((TOTAL_SIZE + size_bytes))

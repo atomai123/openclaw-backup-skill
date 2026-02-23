@@ -5,7 +5,7 @@
 set -e -o pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" && pwd )"
-LOG_FILE="/root/repos/openclaw_backup/backup.log"
+LOG_FILE="${OPENCLAW_HOME:-/root/.openclaw}/backup.log"
 
 # 颜色定义
 RED='\033[0;31m'
@@ -14,8 +14,9 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-WORKSPACE_DIR="/root/.openclaw/workspace"
-BACKUP_DIR="/root/repos/openclaw_backup"
+OPENCLAW_HOME="${OPENCLAW_HOME:-/root/.openclaw}"
+WORKSPACE_DIR="${OPENCLAW_HOME}/workspace"
+BACKUP_DIR="${OPENCLAW_HOME}/backups"
 
 log_info() {
     echo -e "${GREEN}[INFO]${NC} $(date '+%Y-%m-%d %H:%M:%S') - $1"
@@ -30,7 +31,7 @@ log_warning() {
 }
 
 log_error() {
-    echo -e "${RED}[ERROR]${NC} $(date '+%Y-%m-%m-%d %H:%M:%S') - $1"
+    echo -e "${RED}[ERROR]${NC} $(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
 if [ $# -eq 0 ]; then
@@ -96,9 +97,9 @@ echo "备份名称: $BACKUP_NAME"
 echo ""
 
 # 解析备份清单
-BACKUP_TIME=$(grep "备份时间:" "$MANIFEST" | cut -d:2 -f1)
-BACKUP_SIZE=$(grep "备份大小:" "$MANIFEST" | cut -d:2 -f1)
-FILE_COUNT=$(grep "文件数量:" "$MANIFEST" | cut -d:2 -f1)
+BACKUP_TIME=$(grep "备份时间:" "$MANIFEST" | cut -d: -f1)
+BACKUP_SIZE=$(grep "备份大小:" "$MANIFEST" | cut -d: -f1)
+FILE_COUNT=$(grep "文件数量:" "$MANIFEST" | cut -d: -f1)
 
 echo "备份时间: $BACKUP_TIME"
 echo "备份大小: $BACKUP_SIZE"
@@ -138,7 +139,7 @@ if [ -d "$BACKUP_PATH/memory" ]; then
         echo ""
         echo "警告：现有 memory/ 目录将被覆盖！"
         read -p "继续？(y/n): " continue_memory
-        
+
         if [ "$continue_memory" = "y" ]; then
             rm -rf "$WORKSPACE_DIR/memory"
             cp -r "$BACKUP_PATH/memory" "$WORKSPACE_DIR/memory"
@@ -163,7 +164,7 @@ if [ -d "$BACKUP_PATH/skills" ]; then
         echo ""
         echo "警告：现有 skills/ 目录将被覆盖！"
         read -p "继续？(y/n): " continue_skills
-        
+
         if [ "$continue_skills" = "y" ]; then
             rm -rf "$WORKSPACE_DIR/skills"
             cp -r "$BACKUP_PATH/skills" "$WORKSPACE_DIR/skills"
@@ -184,17 +185,17 @@ fi
 
 # 恢复工具目录
 if [ -d "$BACKUP_PATH/tools" ]; then
-    if [ "$FORCE" = "false ] && [ -d "$WORKSPACE_DIR/tools" ]; then
+    if [ "$FORCE" = "false" ] && [ -d "$WORKSPACE_DIR/tools" ]; then
         echo ""
         echo "警告：现有 tools/ 目录将被覆盖！"
         read -p "继续？(y/n): " continue_tools
-        
+
         if [ "$continue_tools" = "y" ]; then
             rm -rf "$WORKSPACE_DIR/tools"
             cp -r "$BACKUP_PATH/tools" "$WORKSPACE_DIR/tools"
             log_success "  ✓ tools/ 目录"
         elif [ "$SKIP_CONFLICTS" = true ]; then
-            log_warning " ⚠️ 賳过 tools/ 目录（存在冲突）"
+            log_warning "  ⚠️ 跳过 tools/ 目录（存在冲突）"
         else
             echo "取消恢复"
             exit 1

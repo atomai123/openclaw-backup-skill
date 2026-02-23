@@ -4,6 +4,9 @@
 
 set -e -o pipefail
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" && pwd )"
+LOG_FILE="${OPENCLAW_HOME:-/root/.openclaw}/backup.log"
+
 # 颜色定义
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -11,25 +14,25 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# 配置
-BACKUP_REPO_DIR="/root/repos/openclaw_backup"
+OPENCLAW_HOME="${OPENCLAW_HOME:-/root/.openclaw}"
+BACKUP_REPO_DIR="${OPENCLAW_HOME}/backups"
 GITHUB_USER="${GITHUB_USER:-atomai123}"
 BACKUP_REPO_NAME="${BACKUP_REPO_NAME:-openclaw_backup}"
 
 log_info() {
-    echo -e "${GREEN}[INFO]${NC} $1"
+    echo -e "${GREEN}[INFO]${NC} $(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
 log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    echo -e "${GREEN}[SUCCESS]${NC} $(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
 log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+    echo -e "${YELLOW}[WARNING]${NC} $(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
 log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo -e "${RED}[ERROR]${NC} $(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
 echo "==================================="
@@ -94,7 +97,7 @@ if [ ! -f "README.md" ]; then
 
 - 核心文件（MEMORY.md, SOUL.md等）
 - 记忆文件（memory/目录）
-- 对话记录（所有会话历史）
+- 对话记录（sessions/目录）
 - Token使用记录
 - 用户技能（skills/目录）
 - 工具文件（tools/目录）
@@ -112,7 +115,7 @@ if [ ! -f "README.md" ]; then
 git clone https://github.com/$GITHUB_USER/$BACKUP_REPO_NAME.git
 
 # 2. 解压最新备份到工作空间
-cp -r openclaw_backup/backups/YYYYMMDD_HHMMSS /root/.openclaw/
+cp -r openclaw_backup/backups/YYYYMMDD_HHMMSS \$OPENCLAW_HOME/
 
 # 3. 重启OpenClaw
 openclaw restart

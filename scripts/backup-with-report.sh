@@ -5,8 +5,9 @@
 set -e -o pipefail
 
 # 配置
-WORKSPACE_DIR="/root/.openclaw/workspace"
-BACKUP_DIR="/root/repos/openclaw_backup"
+OPENCLAW_HOME="${OPENCLAW_HOME:-/root/.openclaw}"
+WORKSPACE_DIR="${OPENCLAW_HOME}/workspace"
+BACKUP_DIR="${OPENCLAW_HOME}/backups"
 RETENTION_DAYS="${RETENTION_DAYS:-30}"
 GIT_REMOTE="${GIT_REMOTE:-origin}"
 ENABLE_AUTO_PUSH="${ENABLE_AUTO_PUSH:-true}"
@@ -22,7 +23,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-LOG_FILE="/root/repos/openclaw_backup/backup.log"
+LOG_FILE="${BACKUP_DIR}/backup.log"
 
 # 日志函数
 log_info() {
@@ -80,20 +81,19 @@ else
     MEMORY_COUNT=0
 fi
 
-# 备份对话记录（使用sessions_history）
+# 备份对话记录
 log_info "备份对话记录..."
 SESSIONS_DIR="$BACKUP_DIR/backups/$TIMESTAMP/sessions"
 mkdir -p "$SESSIONS_DIR"
 
-# 获取所有session列表（模拟）
-if [ -x "$(command -v openclaw)" ]; then
-    # 如果openclaw命令可用，获取session列表
-    log_info "  获取会话列表..."
-    # 这里可以调用 openclaw sessions list 命令
-    # 暂时创建一个空的sessions目录
-    log_success "  ✓ sessions/ 目录（会话记录）"
+# 备份OpenClaw的session数据（如果存在）
+if [ -d "$OPENCLAW_HOME/sessions" ]; then
+    cp -r "$OPENCLAW_HOME/sessions"/* "$SESSIONS_DIR/" 2>/dev/null || true
+    SESSION_COUNT=$(find "$SESSIONS_DIR" -type f | wc -l)
+    log_success "  ✓ sessions/ 目录 ($SESSION_COUNT 个文件)"
 else
-    log_warning "  ⚠️ 无法获取会话记录（openclaw命令不可用）"
+    log_warning "  ⚠️ sessions/ 目录不存在或为空"
+    SESSION_COUNT=0
 fi
 
 # 备份Token使用记录
@@ -101,12 +101,15 @@ log_info "备份Token使用记录..."
 TOKENS_DIR="$BACKUP_DIR/backups/$TIMESTAMP/tokens"
 mkdir -p "$TOKENS_DIR"
 
-# 获取Token使用统计（模拟）
-if [ -f "$WORKSPACE_DIR/.openclaw/state.json" ]; then
-    cp "$WORKSPACE_DIR/.openclaw/state.json" "$TOKENS_DIR/state-backup.json"
+# 备份state.json和任何配置文件
+if [ -f "$OPENCLAW_HOME/state.json" ]; then
+    cp "$OPENCLAW_HOME/state.json" "$TOKENS_DIR/state-backup.json"
     log_success "  ✓ Token使用记录（state.json）"
-else
-    log_warning "  ⚠️ Token使用记录文件不存在"
+fi
+
+if [ -f "$OPENCLAW_HOME/config.yaml" ]; then
+    cp "$OPENCLAW_HOME/config.yaml" "$TOKENS_DIR/config-backup.yaml"
+    log_success "  ✓ 配置文件（config.yaml）"
 fi
 
 # 备份技能目录
@@ -141,12 +144,13 @@ OpenClaw 备份清单
 备份时间: $TIMESTAMP
 备份主机: $(hostname)
 系统版本: $(uname -a)
+OpenClaw路径: $OPENCLAW_HOME
 
 备份内容:
 - 核心文件（MEMORY.md, SOUL.md等）：7个文件
 - 记忆文件（memory/目录）：$MEMORY_COUNT 个文件
-- 对话记录（sessions/目录）：所有会话历史
-- Token使用记录（tokens/目录）：每日使用量和成本
+- 对话记录（sessions/目录）：$SESSION_COUNT 个文件
+- Token使用记录（tokens/目录）：配置和使用数据
 - 用户技能（skills/目录）：$SKILL_COUNT 个文件
 - 工具文件（tools/目录）：$TOOLS_COUNT 个文件
 
@@ -176,8 +180,6 @@ else
     COMMIT_HASH="无变更"
     cd -
     # 即使没有变更也继续发送报告
-    # 创建临时报告
-    REPORT_FILE="/tmp/backup_report.txt"
     generate_report "$TIMESTAMP" "$BACKUP_SIZE" "$FILE_COUNT" "$COMMIT_HASH" "success" "$REPORT_FILE"
     # 这里应该调用飞书发送报告的函数
     # 暂时只输出到文件
@@ -243,8 +245,8 @@ generate_report() {
 -----------
 ✓ 核心文件：7个文件
 ✓ 记忆文件：$MEMORY_COUNT 个文件
-✓ 对话记录：所有会话历史
-✓ Token记录：使用量和成本
+✓ 对话记录：$SESSION_COUNT 个文件
+✓ Token记录：配置和使用数据
 ✓ 用户技能：$SKILL_COUNT 个文件
 ✓ 工具文件：$TOOLS_COUNT 个文件
 
