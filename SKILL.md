@@ -91,7 +91,7 @@ OpenClaw备份包含以下内容：
 
 **Git仓库**：
 ```
-https://github.com/atomai123/openclaw_backup.git
+https://github.com/自己的私有仓库.git
 ```
 
 ### 3. 自动备份时间
@@ -157,12 +157,12 @@ mkdir -p /root/repos
 
 # 克隆备份仓库
 cd /root/repos
-git clone https://github.com/atomai123/openclaw_backup.git
+git clone https://github.com/自己的GitHub账户/openclaw_backup.git
 ```
 
 **注意**：如果Git推送失败，需要配置GitHub访问令牌：
 ```bash
-git remote set-url origin https://<TOKEN>@github.com/atomai123/openclaw_backup.git
+git remote set-url origin https://<TOKEN>@github.com/自己的GitHub账户/openclaw_backup.git
 ```
 
 ---
@@ -231,13 +231,13 @@ cat /root/.openclaw/workspace/backup-manifest*.txt
 
 ```bash
 # 配置Git凭证存储
-git config --global user.name "atomai123"
-git config --global user.email "atomai123@users.noreply.github.com"
+git config --global user.name "自己的GitHub账户"
+git config --global user.email "自己的GitHub账户@users.noreply.github.com"
 git config --global credential.helper store
 
 # 或使用个人访问令牌
 cd /root/repos/openclaw_backup
-git remote set-url origin https://<TOKEN>@github.com/atomai123/openclaw_backup.git
+git remote set-url origin https://<TOKEN>@github.com/自己的GitHub账户/openclaw_backup.git
 ```
 
 ---
@@ -369,7 +369,7 @@ git remote -v
 ping github.com
 
 # 重新配置访问令牌
-git remote set-url origin https://<TOKEN>@github.com/atomai123/openclaw_backup.git
+git remote set-url origin https://<TOKEN>@github.com/自己的GitHub账户/openclaw_backup.git
 ```
 
 **问题4：备份清单文件丢失**
@@ -612,7 +612,7 @@ ping github.com
 telnet github.com 443
 
 # 重新配置远程
-git remote set-url origin https://github.com/atomai123/openclaw_backup.git
+git remote set-url origin https://github.com/自己的GitHub账户/openclaw_backup.git
 ```
 
 ### 磁盘空间不足
